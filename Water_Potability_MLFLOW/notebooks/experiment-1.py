@@ -119,3 +119,5 @@ with mlflow.start_run():
 
     mlflow.set_tag("author", "Ashbi")
     mlflow.set_tags({"model" : "GradientBoostingClassifier", "Experiment-1" : "Water_Potability_Classification"})
+
+    mlflow.sklearn.log_model(sk_model=clf, artifact_path="RandomForestClassifier")
