@@ -6,16 +6,22 @@ import os
 import pickle
 import pandas as pd
 
-from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score, f1_score, precision_score, recall_score, confusion_matrix
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.linear_model import LogisticRegression
+from xgboost import XGBClassifier
+from sklearn.svm import SVC
+from sklearn.neighbors import KNeighborsClassifier
 
 import matplotlib.pyplot as plt
 import seaborn as sns
 
 import dagshub
 
+
 dagshub.init(repo_owner='Ashbipbinu', repo_name='Water_Potability', mlflow=True)
-new_Experiment = "Water_Potability_Classification-1"
+new_Experiment = "Water_Potability_Classification-3"
 
 if mlflow.get_experiment_by_name(new_Experiment) == None:
     experiment_id = mlflow.create_experiment(name = new_Experiment)
@@ -25,99 +31,99 @@ mlflow.set_experiment(new_Experiment)
 mlflow.set_tracking_uri("https://dagshub.com/Ashbipbinu/Water_Potability.mlflow") 
 #mlflow.set_tracking_uri("http://127.0.0.1:5000") 
 
-
-
-with mlflow.start_run():
-
-
-    def load_data(file_path):
+def load_data(file_path):
         return pd.read_csv(file_path)
 
-    def splitting_data_to_XY(data: pd.DataFrame):
-        X = data.drop(columns=['Potability'], axis=1)
-        y = data['Potability']
+def splitting_data_to_XY(data: pd.DataFrame):
+    X = data.drop(columns=['Potability'], axis=1)
+    y = data['Potability']
 
-        return (X, y)
+    return (X, y)
 
-    def model_training(model, X_data, y_data):
-        model.fit(X_data, y_data)
-        return model
-
-    
-
-    file_path = os.path.join(os.getcwd(), "data", "processed", "train_processed_mean.csv")
-    load_train_data = load_data(file_path)
-
-    split_data = splitting_data_to_XY(load_train_data)
-    X_train, y_train = split_data
-    n_estimators = 100
-    max_depth = 3
-
-    clf = RandomForestClassifier(n_estimators=n_estimators, max_depth=max_depth)
-    model = model_training(clf, X_train, y_train)
+def model_training(model, X_data, y_data):
+    model.fit(X_data, y_data)
+    return model
 
 
-    mlflow.log_param("n_estimators", n_estimators)
-    mlflow.log_param("max_depth", max_depth)
+def make_prdiction(model, X_data):
+    y_pred = model.predict(X_data)
+    return y_pred
 
-    def load_data(file_path):
-        return pd.read_csv(file_path)
+def evaluation(y_test, y_pred):
+    accuracy = accuracy_score(y_test, y_pred)
+    f1 = f1_score(y_test, y_pred)
+    precision = precision_score(y_test, y_pred)
+    recall = recall_score(y_test, y_pred)
+
+    return {
+        "accuracy": accuracy,
+        "f1_score": f1,
+        "precision_score": precision,
+        "recall_score": recall
+    }
+
+models = {
+    "Logistic Regression" : LogisticRegression(),
+    "Random Forest" : RandomForestClassifier(),
+    "Support Vector Machine" : SVC(),
+    "Decision Tree" :  DecisionTreeClassifier(),
+    "K Nearest Neighbour": KNeighborsClassifier(),
+    "XG Boost" :  XGBClassifier()
+}
+
+file_path_train = os.path.join(os.getcwd(), "data", "processed", "train_processed_mean.csv")
+file_path_test = os.path.join(os.getcwd(), "data", "processed", "test_processed_mean.csv")
 
 
-    def make_prdiction(model, X_data):
-        y_pred = model.predict(X_data)
-        return y_pred
+train_data = load_data(file_path_train)
+test_data = load_data(file_path_test)
 
-    def evaluation(y_test, y_pred):
-        accuracy = accuracy_score(y_test, y_pred)
-        f1 = f1_score(y_test, y_pred)
-        precision = precision_score(y_test, y_pred)
-        recall = recall_score(y_test, y_pred)
+X_train, y_train = splitting_data_to_XY(train_data)
+X_test, y_test = splitting_data_to_XY(test_data)
 
-        return {
-            "accuracy": accuracy,
-            "f1_score": f1,
-            "precision_score": precision,
-            "recall_score": recall
-        }
 
-    file_path = os.path.join(os.getcwd(), "data", "processed", "test_processed_mean.csv")
-    load_test_data = load_data(file_path)
-    X_test, y_test = splitting_data_to_XY(load_test_data)
-    y_pred = make_prdiction(clf, X_test)
 
-    metrics = evaluation(y_test, y_pred)
+with mlflow.start_run(run_name="Water Potability Models Experiments") as parent:
 
-    train_df = mlflow.data.from_pandas(load_train_data)
-    test_df = mlflow.data.from_pandas(load_test_data)
+    for model_name, model in models.items():
+         
+         model_name = f'{model_name.replace(" ", "_")}.pkl'
+         with mlflow.start_run(run_name=model_name, nested=True) as child:
 
-    accuracy = metrics['accuracy']
-    f1_score = metrics['f1_score']
-    precision_score = metrics['precision_score']
-    recall_score = metrics['recall_score']
+               
+            model.fit(X_train, y_train)
+            with open(model_name, 'wb') as file:
+                pickle.dump(model, file)
+            
+            y_pred = model.predict(X_test)
+            
+            metrics = evaluation(y_test, y_pred)
 
-    mlflow.log_metric("acc", accuracy)
-    mlflow.log_metric("f1_score", f1_score)
-    mlflow.log_metric("precision_score", precision_score)
-    mlflow.log_metric("recall_score", recall_score)
 
-    plt.figure(figsize=(5,5))
-    cm = confusion_matrix(y_test, y_pred)
-    sns.heatmap(cm, annot=True)
-    plt.xlabel("Predicted")
-    plt.ylabel("Actual")
-    plt.title("Confusion matrix")
 
-    plt.savefig("confusion_metrix.png")
+            accuracy = metrics['accuracy']
+            f1_score_ = metrics['f1_score']
+            precision_score_ = metrics['precision_score']
+            recall_score_ = metrics['recall_score']
 
-    mlflow.log_artifact("confusion_metrix.png")
+            mlflow.log_metric("acc", accuracy)
+            mlflow.log_metric("f1_score", f1_score_)
+            mlflow.log_metric("precision_score", precision_score_)
+            mlflow.log_metric("recall_score", recall_score_)
 
-    mlflow.log_artifact(__file__)
+            plt.figure(figsize=(5,5))
+            cm = confusion_matrix(y_test, y_pred)
+            sns.heatmap(cm, annot=True, fmt='d', cmap='Blues')
+            plt.xlabel("Predicted")
+            plt.ylabel("Actual")
+            plt.title(f"Confusion matrix for {model_name}")
 
-    mlflow.log_input(train_df, "train")
-    mlflow.log_input(test_df, "test") 
+            plt.savefig(f"confusion_metrix_{model_name.replace(" ", "_")}.png")
 
-    mlflow.set_tag("author", "Ashbi")
-    mlflow.set_tags({"model" : "GradientBoostingClassifier", "Experiment-1" : "Water_Potability_Classification"})
+            mlflow.log_artifact(f"confusion_metrix_{model_name.replace(" ", "_")}.png")
+            mlflow.log_artifact(__file__)
+            mlflow.log_artifact(f"{model_name.replace(" ", "_")}")
+            
 
-    mlflow.sklearn.log_model(sk_model=clf, artifact_path="RandomForestClassifier")
+            mlflow.set_tag("author", "Ashbi")
+            mlflow.set_tags({"model" : f"{model_name.replace(" ", "_")}", f"{new_Experiment}" : "Water_Potability_Classification"})
