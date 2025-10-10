@@ -120,6 +120,8 @@ with mlflow.start_run(run_name="Hyperparameter_Tuning_Water_Potability_Classific
     mlflow.log_artifact("confusion_metrix_Tuned_RandomForest.png")
     mlflow.log_artifact(__file__)
 
+    mlflow.log_params(params)
+
     with open("Tuned_Random_Forest.pkl", 'wb') as file:
         pickle.dump(estimator, file)
         mlflow.log_artifact("Tuned_Random_Forest.pkl", "Tuned_Random_Forest")
