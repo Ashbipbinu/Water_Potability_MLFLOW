@@ -63,7 +63,7 @@ def evaluation(y_test, y_pred):
     }
 
 models = {
-    "Logistic Regression" : LogisticRegression(),
+    "Logistic Regression" : LogisticRegression(max_iter=1000),
     "Random Forest" : RandomForestClassifier(),
     "Support Vector Machine" : SVC(),
     "Decision Tree" :  DecisionTreeClassifier(),
@@ -87,8 +87,8 @@ with mlflow.start_run(run_name="Water Potability Models Experiments") as parent:
 
     for model_name, model in models.items():
          
-         model_name = f'{model_name.replace(" ", "_")}.pkl'
-         with mlflow.start_run(run_name=model_name, nested=True) as child:
+         model_name_str = f'{model_name.replace(" ", "_")}.pkl'
+         with mlflow.start_run(run_name=model_name_str, nested=True) as child:
 
                
             model.fit(X_train, y_train)
@@ -96,7 +96,7 @@ with mlflow.start_run(run_name="Water Potability Models Experiments") as parent:
             model_path = os.path.join(os.getcwd(), "Water_Potability_MLFLOW", "models")
             os.makedirs(model_path, exist_ok=True)
 
-            model_file_path = os.path.join(model_path, f"{model_name}")
+            model_file_path = os.path.join(model_path, f"{model_name_str}")
             with open(f"{model_file_path}", 'wb') as file:
                 pickle.dump(model, file)
             
@@ -133,9 +133,9 @@ with mlflow.start_run(run_name="Water Potability Models Experiments") as parent:
             # 4. Save the figure using the full path
             plt.savefig(full_path)
 
-            mlflow.log_artifact(f"confusion_metrix_{model_name.replace(" ", "_")}.png")
+            mlflow.log_artifact(full_path)
             mlflow.log_artifact(__file__)
-            mlflow.log_artifact(f"{model_name.replace(" ", "_")}")
+            mlflow.log_artifact(model_file_path)
             
 
             mlflow.set_tag("author", "Ashbi")
