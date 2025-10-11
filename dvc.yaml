@@ -1,0 +1,32 @@
+stages:
+  data_collection:
+    cmd: python src/data/data_collection.py
+    deps:
+    - water_potability/data/data_collection.py
+    outs:
+    - data/raw
+
+  data_processed:
+    cmd: python Water_Potability_MLFLOW/src/data/data_preprocessing.py
+    deps:
+    - data/raw
+    - Water_Potability_MLFLOW/src/data/data_preprocessing.py
+    outs:
+    - data/processed
+
+  model_training:
+    cmd: python Water_Potability_MLFLOW/src/models/train.py
+    deps:
+    - data/processed
+    - Water_Potability_MLFLOW/src/models/train.py
+    outs:
+    - model.pkl
+
+
+  model_evaluation:
+    cmd: python Water_Potability_MLFLOW/src/models/evaluation.py
+    deps:
+    - model.pkl
+    - Water_Potability_MLFLOW/src/models/evaluation.py
+    metrics:
+    - metrics.json
