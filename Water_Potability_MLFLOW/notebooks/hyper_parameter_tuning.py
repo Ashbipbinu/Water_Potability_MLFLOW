@@ -2,6 +2,7 @@ import mlflow
 import os
 import pandas as pd
 import pickle
+import yaml
 
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import RandomizedSearchCV
@@ -126,10 +127,15 @@ with mlflow.start_run(run_name="Hyperparameter_Tuning_Water_Potability_Classific
     # 4. Save the figure using the full path
     plt.savefig(full_path)
 
-    mlflow.log_artifact("confusion_metrix_Tuned_RandomForest.png")
+    mlflow.log_artifact(full_path)
     mlflow.log_artifact(__file__)
 
-    mlflow.log_params(params)
+    config = {
+    "model_params": rs.best_params_
+    }
+
+    with open("params.yaml", 'w') as file:
+        yaml.safe_dump(config, file)
 
     model_path = os.path.join(os.getcwd(), "models")
     os.makedirs(model_path, exist_ok=True)

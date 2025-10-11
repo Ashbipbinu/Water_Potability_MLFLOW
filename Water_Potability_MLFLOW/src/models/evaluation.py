@@ -2,8 +2,11 @@ import json
 import pickle
 import pandas as pd
 import os
+import matplotlib.pyplot as plt
+import seaborn as sns
+import yaml
 
-from sklearn.metrics import accuracy_score, f1_score, precision_score, recall_score
+from sklearn.metrics import accuracy_score, f1_score, precision_score, recall_score, confusion_matrix
 from sklearn.ensemble import RandomForestClassifier
 
 import dagshub
@@ -75,11 +78,55 @@ def main():
     print("Evaluating the model")
     metrics = evaluation(y_test, y_pred)
 
+    accuracy = metrics['accuracy']
+    f1_score_ = metrics['f1_score']
+    precision_score_ = metrics['precision_score']
+    recall_score_ = metrics['recall_score']
+
+    mlflow.log_metric("acc", accuracy)
+    mlflow.log_metric("f1_score", f1_score_)
+    mlflow.log_metric("precision_score", precision_score_)
+    mlflow.log_metric("recall_score", recall_score_)
+
     print("Save the metrics")
     save_metrics(metrics)
 
+    plt.figure(figsize=(5,5))
+    cm = confusion_matrix(y_test, y_pred)
+    sns.heatmap(cm, annot=True, fmt='d', cmap='Blues')
+    plt.xlabel("Predicted")
+    plt.ylabel("Actual")
+    plt.title("Confusion matrix for tuned Random Forest")
+    
+    path_figure = os.path.join(os.getcwd(), "reports")
+    os.makedirs(path_figure, exist_ok=True)
+    filename = f"confusion_metrix_Tuned_RandomForest.png"
+
+    # 3. Create the full, complete file path
+    full_path = os.path.join(path_figure, filename)
+
+    # 4. Save the figure using the full path
+    plt.savefig(full_path)
+
+    mlflow.log_artifact(full_path)
+    mlflow.log_artifact(__file__)
+
+    with open("params.yaml", 'r') as file:
+        params = yaml.safe_load(file)
+        mlflow.log_params(params)
+
+    model_path = os.path.join(os.getcwd(), "models")
+    os.makedirs(model_path, exist_ok=True)
+
+    model_file_path = os.path.join(model_path, "Tuned_RandomForest.pkl")
+    with open(f"{model_file_path}", 'wb') as file:
+        pickle.dump(model, file)
+
+
 if __name__ == '__main__':
-    main()
+
+    with mlflow.start_run(run_name="DVC-MLFLOW"):
+        main()
 
     print("Finished the model evaluation")
 

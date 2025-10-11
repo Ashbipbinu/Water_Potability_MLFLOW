@@ -1,3 +1,0 @@
-model_training:
-  max_depth: 15
-  n_estimators: 130
