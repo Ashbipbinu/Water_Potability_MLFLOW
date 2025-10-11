@@ -92,7 +92,12 @@ with mlflow.start_run(run_name="Water Potability Models Experiments") as parent:
 
                
             model.fit(X_train, y_train)
-            with open(model_name, 'wb') as file:
+
+            model_path = os.path.join(os.getcwd(), "Water_Potability_MLFLOW", "models")
+            os.makedirs(model_path, exist_ok=True)
+
+            model_file_path = os.path.join(model_path, f"{model_name}")
+            with open(f"{model_file_path}", 'wb') as file:
                 pickle.dump(model, file)
             
             y_pred = model.predict(X_test)
@@ -118,7 +123,15 @@ with mlflow.start_run(run_name="Water Potability Models Experiments") as parent:
             plt.ylabel("Actual")
             plt.title(f"Confusion matrix for {model_name}")
 
-            plt.savefig(f"confusion_metrix_{model_name.replace(" ", "_")}.png")
+            path_figure = os.path.join(os.getcwd(), "Water_Potability_MLFLOW", "reports")
+            os.makedirs(path_figure, exist_ok=True)
+            filename = f"confusion_metrix_{model_name.replace(" ", "_")}.png"
+
+            # 3. Create the full, complete file path
+            full_path = os.path.join(path_figure, filename)
+
+            # 4. Save the figure using the full path
+            plt.savefig(full_path)
 
             mlflow.log_artifact(f"confusion_metrix_{model_name.replace(" ", "_")}.png")
             mlflow.log_artifact(__file__)

@@ -133,12 +133,19 @@ with mlflow.start_run(run_name="Imputer - Water Potability Models Experiments") 
             plt.ylabel("Actual")
             plt.title(f"Confusion matrix for {model_name}")
 
-            plt.savefig(f"confusion_metrix_{model_name.replace(" ", "_")}.png")
+            path_figure = os.path.join(os.getcwd(), "Water_Potability_MLFLOW", "reports")
+            os.makedirs(path_figure, exist_ok=True)
+            filename = f"Imputer_confusion_metrix_{model_name.replace(" ", "_")}.png"
 
-            model_file_path = f'{model_name}.pkl' 
+            # 3. Create the full, complete file path
+            full_path = os.path.join(path_figure, filename)
 
-            # 2. Save the actual trained model object to the file
-            with open(model_file_path, "wb") as file:
-            # Use the original 'model' object (the classifier)
-                pickle.dump(model, file) 
-                mlflow.log_artifact(model_file_path, "models")
+            # 4. Save the figure using the full path
+            plt.savefig(full_path)
+
+            model_path = os.path.join(os.getcwd(), "Water_Potability_MLFLOW", "models")
+            os.makedirs(model_path, exist_ok=True)
+
+            model_file_path = os.path.join(model_path, f"{model_name}")
+            with open(f"{model_file_path}", 'wb') as file:
+                pickle.dump(model, file)
