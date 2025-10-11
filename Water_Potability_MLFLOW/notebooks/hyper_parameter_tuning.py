@@ -115,14 +115,26 @@ with mlflow.start_run(run_name="Hyperparameter_Tuning_Water_Potability_Classific
     plt.xlabel("Predicted")
     plt.ylabel("Actual")
     plt.title("Confusion matrix for tuned Random Forest")
-    plt.savefig("confusion_metrix_Tuned_RandomForest.png")
+    
+    path_figure = os.path.join(os.getcwd(), "reports")
+    os.makedirs(path_figure, exist_ok=True)
+    filename = f"confusion_metrix_Tuned_RandomForest.png"
+
+    # 3. Create the full, complete file path
+    full_path = os.path.join(path_figure, filename)
+
+    # 4. Save the figure using the full path
+    plt.savefig(full_path)
 
     mlflow.log_artifact("confusion_metrix_Tuned_RandomForest.png")
     mlflow.log_artifact(__file__)
 
     mlflow.log_params(params)
 
-    with open("Tuned_Random_Forest.pkl", 'wb') as file:
+    model_path = os.path.join(os.getcwd(), "models")
+    os.makedirs(model_path, exist_ok=True)
+
+    model_file_path = os.path.join(model_path, "Tuned_RandomForest.pkl")
+    with open(f"{model_file_path}", 'wb') as file:
         pickle.dump(estimator, file)
-        mlflow.log_artifact("Tuned_Random_Forest.pkl", "Tuned_Random_Forest")
 

@@ -133,7 +133,7 @@ with mlflow.start_run(run_name="Imputer - Water Potability Models Experiments") 
             plt.ylabel("Actual")
             plt.title(f"Confusion matrix for {model_name}")
 
-            path_figure = os.path.join(os.getcwd(), "Water_Potability_MLFLOW", "reports")
+            path_figure = os.path.join(os.getcwd(), "reports")
             os.makedirs(path_figure, exist_ok=True)
             filename = f"Imputer_confusion_metrix_{model_name.replace(" ", "_")}.png"
 
@@ -143,7 +143,7 @@ with mlflow.start_run(run_name="Imputer - Water Potability Models Experiments") 
             # 4. Save the figure using the full path
             plt.savefig(full_path)
 
-            model_path = os.path.join(os.getcwd(), "Water_Potability_MLFLOW", "models")
+            model_path = os.path.join(os.getcwd(), "models")
             os.makedirs(model_path, exist_ok=True)
 
             model_file_path = os.path.join(model_path, f"{model_name}")
