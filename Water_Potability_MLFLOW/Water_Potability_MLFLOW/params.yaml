@@ -1,8 +1,3 @@
 model_params:
-  bootstrap: true
-  criterion: gini
-  max_depth: 20
-  max_features: 0.7
-  min_samples_leaf: 5
-  min_samples_split: 10
-  n_estimators: 100
+  max_depth: 15
+  n_estimators: 130

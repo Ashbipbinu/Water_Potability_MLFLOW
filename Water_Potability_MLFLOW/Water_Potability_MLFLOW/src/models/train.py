@@ -7,7 +7,7 @@ from sklearn.ensemble import RandomForestClassifier
 
 
 training_params = {
-    'model_training': {
+    'model_params': {
         'n_estimators': 130,  # Your desired value
         'max_depth': 15       # Your desired value
     }
@@ -22,8 +22,8 @@ def save_params(params_dict, file_path='params.yaml'):
 with open('params.yaml', 'r') as file:
     params = yaml.safe_load(file)
 
-n_estimator = params['model_training']['n_estimators']
-max_depth = params['model_training']['max_depth']
+n_estimator = params['model_params']['n_estimators']
+max_depth = params['model_params']['max_depth']
 
 
 def load_data(file_path):

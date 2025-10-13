@@ -123,7 +123,7 @@ def main():
         with open(f"{model_file_path}", 'wb') as file:
             pickle.dump(model, file)
 
-        run_info = {"run_id": run.info.run_id, "model_name": model_file_path}
+        run_info = {"run_id": run.info.run_id, "model_name": "Tuned_RandomForest"}
         
         # 1. Define the filename for the run info
         run_info_filename = "run_details.json"
