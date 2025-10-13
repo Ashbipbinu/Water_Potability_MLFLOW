@@ -62,71 +62,82 @@ def save_metrics(metrics):
     
 
 def main():
-    print("Loading the test data")
-    file_path = os.path.join(os.getcwd(), "data", "processed", "test_processed_mean.csv")
-    test_data = load_data(file_path)
+    with mlflow.start_run(run_name="DVC-MLFLOW") as run:
+        print("Loading the test data")
+        file_path = os.path.join(os.getcwd(), "data", "processed", "test_processed_mean.csv")
+        test_data = load_data(file_path)
 
-    print("Splitting the data")
-    X_test, y_test = splitting_Data_XY(test_data)
+        print("Splitting the data")
+        X_test, y_test = splitting_Data_XY(test_data)
 
-    print("Loading the model")
-    model = load_model()
+        print("Loading the model")
+        model = load_model()
 
-    print("Making predictions from the model")
-    y_pred = make_prdiction(model, X_test)
+        print("Making predictions from the model")
+        y_pred = make_prdiction(model, X_test)
 
-    print("Evaluating the model")
-    metrics = evaluation(y_test, y_pred)
+        print("Evaluating the model")
+        metrics = evaluation(y_test, y_pred)
 
-    accuracy = metrics['accuracy']
-    f1_score_ = metrics['f1_score']
-    precision_score_ = metrics['precision_score']
-    recall_score_ = metrics['recall_score']
+        accuracy = metrics['accuracy']
+        f1_score_ = metrics['f1_score']
+        precision_score_ = metrics['precision_score']
+        recall_score_ = metrics['recall_score']
 
-    mlflow.log_metric("acc", accuracy)
-    mlflow.log_metric("f1_score", f1_score_)
-    mlflow.log_metric("precision_score", precision_score_)
-    mlflow.log_metric("recall_score", recall_score_)
+        mlflow.log_metric("acc", accuracy)
+        mlflow.log_metric("f1_score", f1_score_)
+        mlflow.log_metric("precision_score", precision_score_)
+        mlflow.log_metric("recall_score", recall_score_)
 
-    print("Save the metrics")
-    save_metrics(metrics)
+        print("Save the metrics")
+        save_metrics(metrics)
 
-    plt.figure(figsize=(5,5))
-    cm = confusion_matrix(y_test, y_pred)
-    sns.heatmap(cm, annot=True, fmt='d', cmap='Blues')
-    plt.xlabel("Predicted")
-    plt.ylabel("Actual")
-    plt.title("Confusion matrix for tuned Random Forest")
-    
-    path_figure = os.path.join(os.getcwd(), "reports")
-    os.makedirs(path_figure, exist_ok=True)
-    filename = f"confusion_metrix_Tuned_RandomForest.png"
+        plt.figure(figsize=(5,5))
+        cm = confusion_matrix(y_test, y_pred)
+        sns.heatmap(cm, annot=True, fmt='d', cmap='Blues')
+        plt.xlabel("Predicted")
+        plt.ylabel("Actual")
+        plt.title("Confusion matrix for tuned Random Forest")
+        
+        path_reports = os.path.join(os.getcwd(), "reports")
+        os.makedirs(path_reports, exist_ok=True)
+        filename = f"confusion_metrix_Tuned_RandomForest.png"
 
-    # 3. Create the full, complete file path
-    full_path = os.path.join(path_figure, filename)
+        # 3. Create the full, complete file path
+        full_path = os.path.join(path_reports, filename)
 
-    # 4. Save the figure using the full path
-    plt.savefig(full_path)
+        # 4. Save the figure using the full path
+        plt.savefig(full_path)
 
-    mlflow.log_artifact(full_path)
-    mlflow.log_artifact(__file__)
+        mlflow.log_artifact(full_path)
+        mlflow.log_artifact(__file__)
 
-    with open("params.yaml", 'r') as file:
-        params = yaml.safe_load(file)
-        mlflow.log_params(params)
+        with open("params.yaml", 'r') as file:
+            params = yaml.safe_load(file)
+            mlflow.log_params(params)
 
-    model_path = os.path.join(os.getcwd(), "models")
-    os.makedirs(model_path, exist_ok=True)
+        model_path = os.path.join(os.getcwd(), "models")
+        os.makedirs(model_path, exist_ok=True)
 
-    model_file_path = os.path.join(model_path, "Tuned_RandomForest.pkl")
-    with open(f"{model_file_path}", 'wb') as file:
-        pickle.dump(model, file)
+        model_file_path = os.path.join(model_path, "Tuned_RandomForest.pkl")
+        with open(f"{model_file_path}", 'wb') as file:
+            pickle.dump(model, file)
 
+        run_info = {"run_id": run.info.run_id, "model_name": model_file_path}
+        
+        # 1. Define the filename for the run info
+        run_info_filename = "run_details.json"
+        
+        # 2. Construct the full file path (Directory + Filename)
+        run_info_full_path = os.path.join(path_reports, run_info_filename)
+
+        # 3. Open the file path for writing
+        with open(run_info_full_path, 'w') as file:
+            json.dump(run_info, file, indent=4)
+        
+        mlflow.log
 
 if __name__ == '__main__':
-
-    with mlflow.start_run(run_name="DVC-MLFLOW"):
-        main()
-
+    main()
     print("Finished the model evaluation")
 
