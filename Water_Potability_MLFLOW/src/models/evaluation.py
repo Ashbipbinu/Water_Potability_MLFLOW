@@ -135,7 +135,7 @@ def main():
         with open(run_info_full_path, 'w') as file:
             json.dump(run_info, file, indent=4)
         
-        mlflow.log
+
 
 if __name__ == '__main__':
     main()
