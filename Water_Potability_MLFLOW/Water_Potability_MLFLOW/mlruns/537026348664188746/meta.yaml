@@ -1,0 +1,6 @@
+artifact_location: file:///F:/Water_Potability_MLFLOW/water_potability_mlflow/mlruns/537026348664188746
+creation_time: 1760080005133
+experiment_id: '537026348664188746'
+last_update_time: 1760080005133
+lifecycle_stage: active
+name: Data with KNN imputer
