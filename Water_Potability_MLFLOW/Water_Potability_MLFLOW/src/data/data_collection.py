@@ -7,7 +7,7 @@ from sklearn.model_selection import train_test_split
 with open('params.yaml', 'r') as file:
     params = yaml.safe_load(file)
 
-test_size = 0.2
+test_size = params['data_collection']['test_size']
 
 def load_data(filepath):
     df = pd.read_csv(filepath)
