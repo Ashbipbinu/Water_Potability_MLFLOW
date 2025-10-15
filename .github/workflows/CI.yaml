@@ -27,10 +27,5 @@ jobs:
       - name: Run DVC Pipeline
         # DVC repro requires the DVC cache to be pulled first
         run: |
-          # 1. Pull DVC data/cache (assuming you have configured remote storage)
-          # This step is crucial for DVC to have the data it needs to run 'dvc repro'
-          # If this fails because you haven't set up DVC remote secrets, the repro step will also fail.
-          dvc pull --force
-
           # 2. Run the DVC pipeline
           dvc repro
