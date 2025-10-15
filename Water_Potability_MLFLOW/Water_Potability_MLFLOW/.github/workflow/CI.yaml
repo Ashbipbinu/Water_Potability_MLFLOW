@@ -1,0 +1,36 @@
+name: CI Pipeline
+
+on:
+  push:
+    branches:
+      - main # It's good practice to specify which branches trigger the CI
+
+jobs:
+  project_testing:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        # Indentation for 'uses' must align with 'name' and 'run'
+        uses: actions/checkout@v3
+
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with: # A colon ':' is required after 'with'
+          python-version: '3.12' # Using '3.12' is safer than a specific patch version like '3.12.9'
+
+      - name: Install Dependencies
+        run: |
+          pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install dvc
+
+      - name: Run DVC Pipeline
+        # DVC repro requires the DVC cache to be pulled first
+        run: |
+          # 1. Pull DVC data/cache (assuming you have configured remote storage)
+          # This step is crucial for DVC to have the data it needs to run 'dvc repro'
+          # If this fails because you haven't set up DVC remote secrets, the repro step will also fail.
+          dvc pull --force
+
+          # 2. Run the DVC pipeline
+          dvc repro
