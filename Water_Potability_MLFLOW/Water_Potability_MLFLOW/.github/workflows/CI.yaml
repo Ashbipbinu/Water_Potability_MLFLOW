@@ -5,7 +5,7 @@ on:
     branches:
       - main # It's good practice to specify which branches trigger the CI
 
-jobs:
+jobs: 
   project_testing:
     runs-on: ubuntu-latest
     steps:
