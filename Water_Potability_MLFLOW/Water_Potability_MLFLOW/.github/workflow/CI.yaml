@@ -1,0 +1,25 @@
+name: CI Pipeline
+
+on: push
+
+job:
+  project_testing:
+        runs-on: ubuntu-latest
+        steps:
+           - name: Checkout code
+             uses: actions/checkout@v3
+
+           - name: Setup Python
+             uses: actions/setup-python@v4
+             with: 
+             python-version: '3.12.9'
+           
+           - name: Install Dependencies
+             run: |
+                pip install --upgrade pip
+                pip install -r requirements.txt
+                pip install dvc
+           
+           - name: Run DVC Pipeline
+             run: |
+              dvc repro 
