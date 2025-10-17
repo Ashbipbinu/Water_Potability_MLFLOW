@@ -25,6 +25,8 @@ jobs:
           pip install dvc
 
       - name: Run DVC Pipeline
+        env: 
+          DAGS_HUB_SECRET: ${{secrets.DAGS_HUB_SECRET}}
         # DVC repro requires the DVC cache to be pulled first
         run: |
           # 2. Run the DVC pipeline

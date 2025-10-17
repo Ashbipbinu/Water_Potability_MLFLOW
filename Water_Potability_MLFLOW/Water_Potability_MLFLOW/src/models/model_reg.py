@@ -6,7 +6,16 @@ import dagshub
 
 from mlflow.tracking import MlflowClient
 
-dagshub.init(repo_owner='Ashbipbinu', repo_name='Water_Potability_MLFLOW', mlflow=True)
+dags_hub_token = os.getenv('DAGS_HUB_SECRET')
+
+if not dags_hub_token:
+    raise EnvironmentError("Dagshub token is not available")
+
+
+os.environ['MLFLOW_TRACKING_USERNAME'] = dags_hub_token
+os.environ['MLFLOW_TRACKING_PASSWORD'] = dags_hub_token
+
+
 
 mlflow.set_tracking_uri('https://dagshub.com/Ashbipbinu/Water_Potability_MLFLOW.mlflow')
 

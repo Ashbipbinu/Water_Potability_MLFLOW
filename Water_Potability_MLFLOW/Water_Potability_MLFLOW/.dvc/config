@@ -1,0 +1,4 @@
+[core]
+    remote = mytemp
+['remote "mytemp"']
+    url = C:\Users\LENOVO\AppData\Local\Temp
