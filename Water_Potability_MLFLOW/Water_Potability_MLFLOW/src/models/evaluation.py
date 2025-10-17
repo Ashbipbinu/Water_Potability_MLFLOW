@@ -21,6 +21,8 @@ dags_hub_token = os.getenv('DAGS_HUB_SECRET')
 if not dags_hub_token:
     raise EnvironmentError("Dagshub token is not available")
 
+# Authenticate DagsHub non-interactively
+dagshub.auth.add_app_token(dags_hub_token)
 
 os.environ['MLFLOW_TRACKING_USERNAME'] = dags_hub_token
 os.environ['MLFLOW_TRACKING_PASSWORD'] = dags_hub_token
