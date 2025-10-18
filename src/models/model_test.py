@@ -37,9 +37,6 @@ class TestModelLoading(unittest.TestCase):
         client = MlflowClient()
         version = client.get_model_version_by_alias(model_name, model_alias)
 
-        if not version:
-            self.fail("No model found with the alias challenger")
-
         logged_model = f"models:/{model_name}@{model_alias}"
 
         try:
