@@ -34,9 +34,7 @@ model_uri = f'run://{run_id}/{model_path}'
 
 reg = mlflow.register_model(model_uri, model_name)
 
-new_stage = "Production"
-
-alias_name = "champion"
+alias_name = "challenger"
 client.set_registered_model_alias(
     name=model_name,
     alias=alias_name,
