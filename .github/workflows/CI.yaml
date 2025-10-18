@@ -31,3 +31,9 @@ jobs:
         run: |
           # 2. Run the DVC pipeline
           dvc repro
+     
+      - name: Run model test
+        env: 
+          DAGS_HUB_SECRET: ${{secrets.DAGS_HUB_SECRET}}
+        run: |
+          python -m unittest src/models/model_test.py
