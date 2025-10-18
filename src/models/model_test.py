@@ -28,7 +28,10 @@ class TestModelLoading(unittest.TestCase):
         client = MlflowClient()
         version = client.get_model_version_by_alias(model_name, model_alias)
 
-        self.assertGreater(len(version), 0, "No challenger models found")
+        self.assertIsNotNone(version, "The 'challenger' model alias was not found for the model.")
+        
+        # You can also assert on its version number or status if needed.
+        self.assertIsInstance(version.version, str)
     
     def test_model_loading(self):
         client = MlflowClient()
@@ -37,10 +40,10 @@ class TestModelLoading(unittest.TestCase):
         if not version:
             self.fail("No model found with the alias challenger")
         
-        latest_version = version[0].version
+        latest_version = version.version
         run_id = version[0].run_id
 
-        logged_model = f"runs:/{run_id}/{model_name}"
+        logged_model = f"models:/{model_name}@{model_alias}"
 
         try:
 
