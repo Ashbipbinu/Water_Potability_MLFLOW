@@ -39,9 +39,6 @@ class TestModelLoading(unittest.TestCase):
 
         if not version:
             self.fail("No model found with the alias challenger")
-        
-        latest_version = version.version
-        run_id = version[0].run_id
 
         logged_model = f"models:/{model_name}@{model_alias}"
 
