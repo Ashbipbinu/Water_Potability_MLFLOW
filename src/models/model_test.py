@@ -39,7 +39,7 @@ class TestModelLoading(unittest.TestCase):
 
         logged_model = f"models:/{model_name}@{model_alias}"
 
-        try:
+        try: 
 
             loaded_model = mlflow.pyfunc.load_model(logged_model)
         except Exception as e:
